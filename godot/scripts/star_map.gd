@@ -12,6 +12,7 @@ var planet_radius: Dictionary = {}
 var _cam: Camera3D
 var _orbit_time: float = 0.0
 var _group: Node3D
+var _ship: Node3D
 
 const ZONE_RADIUS := {1: 16.0, 2: 26.0, 3: 36.0}
 const ZONE_ANGLES := {
@@ -64,6 +65,12 @@ func build(save_data: SaveData) -> void:
 	_group.add_child(home)
 	planet_nodes["home"] = home
 	planet_radius["home"] = 3.5
+	# سفينة اللاعب قرب الوطن — حتى تبدو الخريطة حيّة وفيها «شخصية»
+	_ship = Builders.ship()
+	_ship.position = Vector3(6.5, 1.2, 5.0)
+	_ship.scale = Vector3.ONE * 0.7
+	_ship.rotation_degrees = Vector3(0, -35, 0)
+	_group.add_child(_ship)
 	# الكواكب
 	var zone_index := {1: 0, 2: 0, 3: 0}
 	for p in GameData.PLANETS:
@@ -102,6 +109,10 @@ func _process(delta: float) -> void:
 		var a := _orbit_time * 0.045
 		_cam.position = Vector3(sin(a) * 30.0, 25.0, cos(a) * 30.0)
 		_cam.look_at(Vector3(0, 0, 0), Vector3.UP)
+	# السفينة تطفو وتدور ببطء قرب الوطن
+	if _ship != null:
+		_ship.position.y = 1.2 + sin(_orbit_time * 1.2) * 0.35
+		_ship.rotation.y += delta * 0.25
 	# دوران بطيء للكواكب حول نفسها
 	for pid in planet_nodes.keys():
 		var node: Node3D = planet_nodes[pid]
@@ -149,3 +160,8 @@ func planet_position(pid: String) -> Vector3:
 	if planet_nodes.has(pid):
 		return (planet_nodes[pid] as Node3D).global_position
 	return Vector3.ZERO
+
+func screen_pos_of_planet(pid: String) -> Vector2:
+	if _cam == null:
+		return Vector2.ZERO
+	return _cam.unproject_position(planet_position(pid))

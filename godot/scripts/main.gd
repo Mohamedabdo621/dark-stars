@@ -210,6 +210,9 @@ func _build_ui() -> void:
 	root_control.set_anchors_preset(Control.PRESET_FULL_RECT)
 	root_control.layout_direction = Control.LAYOUT_DIRECTION_RTL
 	root_control.theme = theme
+	# مهم: Root يغطي الشاشة كلها — لو بقي STOP (الافتراضي) سيبتلع كل
+	# لمسة/نقرة قبل أن تصل إلى _unhandled_input (اختيار الكواكب).
+	root_control.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	ui_layer.add_child(root_control)
 	# شريط الإحصاءات العلوي (يظهر في الخريطة والطيران والسطح)
 	stats_bar = HBoxContainer.new()
@@ -374,6 +377,14 @@ func _build_map_screen() -> void:
 	var back_btn := _mk_button("🏠 القائمة")
 	back_btn.pressed.connect(_show_title)
 	bottom.add_child(back_btn)
+	# تلميح يشرح ماذا يفعل اللاعب هنا (فوق، تحت شريط الإحصاءات)
+	var hint := _mk_label("👆 المس أي كوكب لاختياره، ثم اضغط «سافر إلى الكوكب»", 24, GameData.COLORS["muted"], HORIZONTAL_ALIGNMENT_CENTER)
+	hint.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	hint.offset_top = 76
+	hint.offset_left = -420
+	hint.offset_right = 420
+	hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	s.add_child(hint)
 	# لوحة معلومات الكوكب المختار
 	map_info_panel = PanelContainer.new()
 	map_info_panel.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
@@ -1150,6 +1161,27 @@ func _run_smoke_test() -> void:
 		else:
 			print("[SMOKE] FAIL: لم نعد إلى الخريطة")
 			failures += 1
+		# 5-ب) محاكاة لمس كوكب على الخريطة (اختبار انحدار: النقر كان
+		# يبتلعه Root قبل أن يصل إلى _unhandled_input)
+		if state == State.MAP and map_world != null:
+			# إطار أو اثنان حتى تتموضع الكاميرا (تدور في _process)
+			await get_tree().process_frame
+			await get_tree().process_frame
+			if root_control.mouse_filter != Control.MOUSE_FILTER_IGNORE:
+				print("[SMOKE] FAIL: root_control يبتلع النقرات (mouse_filter ليس IGNORE)")
+				failures += 1
+			else:
+				var tap_pos := map_world.screen_pos_of_planet("ramman")
+				var ev := InputEventMouseButton.new()
+				ev.position = tap_pos
+				ev.button_index = MOUSE_BUTTON_LEFT
+				ev.pressed = true
+				map_world._unhandled_input(ev)
+				if String(selected_planet.get("id", "")) == "ramman" and map_info_panel.visible:
+					print("[SMOKE] OK: لمس كوكب رمّال يفتح لوحة معلوماته")
+				else:
+					print("[SMOKE] FAIL: لمس كوكب رمّال لم يختر الكوكب")
+					failures += 1
 	# 6) حفظ/تحميل
 	var crystals_now := int(save.data["crystals"])
 	save.save_game()
