@@ -1,16 +1,8 @@
-buildscript {
-    repositories {
-        google()
-        mavenCentral()
-    }
-    dependencies {
-        classpath("com.android.application:8.5.2")
-    }
-}
-
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-    }
+// AGP version declared once here; app/build.gradle applies the plugin without a version.
+// The old buildscript{} + allprojects{} form broke on GitHub Actions: with
+// dependencyResolutionManagement FAIL_ON_PROJECT_REPOS in settings.gradle, the
+// root buildscript repositories were not used to resolve com.android.application:8.5.2
+// ("Could not find com.android.application:8.5.2" on run #1).
+plugins {
+    id("com.android.application") version "8.5.2" apply false
 }
