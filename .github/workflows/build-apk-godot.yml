@@ -1,0 +1,45 @@
+name: Build APK (Godot 3D)
+
+# يبني نسخة أندرويد (debug) من لعبة DARK STARS ثلاثية الأبعاد (Godot 4.4).
+# يعمل عند أي تغيير داخل مجلد godot/ أو يدوياً من تبويب Actions.
+# ملاحظة: هذا الملف نفسه لا يمكن دفعه عبر GitHub API (نفس قيد ملفات workflow
+# السابق) — يُضاف من واجهة GitHub على الويب، وبعدها يمكن تشغيله يدوياً
+# (workflow_dispatch) لأول مرة لأنه لا يُفعَّل بدفع نفسه.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'godot/**'
+  workflow_dispatch:
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    container:
+      image: barichello/godot-ci:4.4
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check Android SDK
+        run: |
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          ls "$ANDROID_HOME/build-tools" || true
+
+      - name: Import project
+        working-directory: godot
+        run: godot --headless --import
+
+      - name: Export Android APK (debug)
+        working-directory: godot
+        run: |
+          mkdir -p build
+          godot --headless --export-debug "Android" build/DARK-STARS-3D.apk
+          ls -la build/
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: dark-stars-3d-apk
+          path: godot/build/DARK-STARS-3D.apk
