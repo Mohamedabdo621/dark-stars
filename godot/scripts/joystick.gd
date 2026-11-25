@@ -1,5 +1,5 @@
 extends Control
-class_name VirtualJoystick
+class_name DarkJoystick
 
 # عصا افتراضية للمس (وتعمل بالفأرة للاختبار على الكمبيوتر).
 # output: Vector2 في نطاق [-1, 1] (x يمين/يسار، y لأعلى/لأسفل).

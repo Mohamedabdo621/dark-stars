@@ -38,7 +38,7 @@ var map_info_req: Label
 var map_travel_btn: Button
 
 # عناصر الطيران
-var flight_joy: VirtualJoystick
+var flight_joy: DarkJoystick
 var flight_fuel_bar: ProgressBar
 var flight_fuel_lbl: Label
 var flight_dist_lbl: Label
@@ -48,7 +48,7 @@ var _warn_time: float = 0.0
 var _thrust_held: bool = false
 
 # عناصر السطح
-var surface_joy: VirtualJoystick
+var surface_joy: DarkJoystick
 var surface_artifact_lbl: Label
 var surface_zap_btn: Button
 var surface_hint_lbl: Label
@@ -502,7 +502,7 @@ func _build_flight_hud() -> void:
 	flight_warn_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	s.add_child(flight_warn_lbl)
 	# عصا التوجيه (يسار)
-	flight_joy = VirtualJoystick.new()
+	flight_joy = DarkJoystick.new()
 	flight_joy.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
 	flight_joy.offset_left = 24
 	flight_joy.offset_top = -280
@@ -557,7 +557,7 @@ func _build_surface_hud() -> void:
 	return_btn.offset_bottom = 210
 	return_btn.pressed.connect(_on_return_to_ship)
 	s.add_child(return_btn)
-	surface_joy = VirtualJoystick.new()
+	surface_joy = DarkJoystick.new()
 	surface_joy.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
 	surface_joy.offset_left = 24
 	surface_joy.offset_top = -280
