@@ -1,0 +1,300 @@
+/* DARK STARS — نمط داكن نيون بنفسجي (هوية DARKLINK) */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: #07010d;
+  color: #f5efff;
+  font-family: system-ui, -apple-system, "Segoe UI", Tahoma, Arial, sans-serif;
+  direction: rtl;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: none;
+}
+
+#app { position: fixed; inset: 0; }
+
+#game-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* الشريط العلوي */
+.hud {
+  position: absolute;
+  top: 0; right: 0; left: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: rgba(18, 4, 31, 0.85);
+  border-bottom: 1px solid #a855f7;
+  z-index: 20;
+}
+.hud-stats { display: flex; gap: 12px; align-items: center; font-weight: bold; }
+.fuel-bar {
+  width: 90px; height: 10px;
+  background: #2a0a45;
+  border: 1px solid #a855f7;
+  border-radius: 999px;
+  overflow: hidden;
+}
+#hud-fuel-bar {
+  height: 100%;
+  width: 50%;
+  background: linear-gradient(90deg, #a855f7, #e879f9);
+  transition: width 0.2s;
+}
+.hud-nav { display: flex; gap: 6px; flex-wrap: wrap; }
+
+/* حركات وانتقالات ناعمة */
+@keyframes screenIn {
+  from { opacity: 0; transform: translateY(14px) scale(0.995); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(-8px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes titleFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+.screen { animation: screenIn 0.3s ease-out; }
+.toast { animation: toastIn 0.25s ease-out; }
+.game-title { animation: titleFloat 3.2s ease-in-out infinite; }
+.joy-knob { transition: transform 0.06s linear; }
+.touch-btn { transition: transform 0.1s ease, box-shadow 0.15s ease; }
+.hud { transition: opacity 0.25s ease; }
+
+/* الشاشات */
+.screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 10;
+  overflow-y: auto;
+}
+.screen-overlay {
+  align-items: flex-start;
+  justify-content: center;
+  pointer-events: none;
+  background: transparent;
+}
+.screen-overlay .flight-hud,
+.screen-overlay .surface-hud {
+  pointer-events: auto;
+  margin-top: 64px;
+  background: rgba(18, 4, 31, 0.8);
+  border: 1px solid #a855f7;
+  border-radius: 16px;
+  padding: 10px 14px;
+  text-align: center;
+  max-width: 92vw;
+}
+.panel {
+  background: rgba(18, 4, 31, 0.94);
+  border: 1px solid #a855f7;
+  border-radius: 22px;
+  box-shadow: 0 0 30px rgba(168, 85, 247, 0.35);
+  padding: 20px;
+  width: 100%;
+  max-width: 560px;
+  max-height: 92vh;
+  overflow-y: auto;
+  text-align: center;
+}
+.title-panel { max-width: 480px; }
+.game-title {
+  font-size: 42px;
+  color: #e879f9;
+  text-shadow: 0 0 18px #a855f7;
+  margin-bottom: 8px;
+}
+.subtitle { color: #a78fc7; margin-bottom: 18px; }
+h2 { color: #e879f9; margin-bottom: 12px; }
+h3 { color: #fbbf24; margin: 12px 0 6px; }
+.muted { color: #a78fc7; }
+.small { font-size: 12px; }
+.gold { color: #fbbf24; font-weight: bold; }
+.hint { color: #fbbf24; }
+.howto { text-align: right; line-height: 1.9; color: #f5efff; }
+.howto p { margin-bottom: 10px; }
+
+/* الأزرار */
+.btn {
+  display: block;
+  width: 100%;
+  margin: 8px 0;
+  padding: 13px 16px;
+  font-size: 17px;
+  font-weight: bold;
+  color: #f5efff;
+  background: #1c0533;
+  border: 1px solid #a855f7;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+.btn:hover { box-shadow: 0 0 16px rgba(168, 85, 247, 0.55); }
+.btn:active { transform: scale(0.97); }
+.btn.primary {
+  background: linear-gradient(135deg, #a855f7, #e879f9);
+  color: #07010d;
+  border: none;
+}
+.btn.big { font-size: 19px; padding: 15px; }
+.btn.small {
+  display: inline-block;
+  width: auto;
+  margin: 0;
+  padding: 7px 12px;
+  font-size: 14px;
+  border-radius: 12px;
+}
+.btn.danger { border-color: #ef4444; color: #fca5a5; }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* قائمة الكواكب */
+.zone-block { margin: 10px 0; text-align: right; }
+.planet-btn {
+  display: block;
+  width: 100%;
+  margin: 5px 0;
+  padding: 10px 12px;
+  text-align: right;
+  font-size: 15px;
+  color: #f5efff;
+  background: #240840;
+  border: 1px solid #7c3aed;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.12s ease, border-color 0.15s ease, background 0.15s ease;
+}
+.planet-btn:hover { transform: translateY(-1px); border-color: #e879f9; }
+.planet-btn.selected { border-color: #fbbf24; background: #3b0764; }
+.planet-btn.locked { opacity: 0.6; }
+.planet-info {
+  margin: 12px 0;
+  padding: 12px;
+  background: #0d0218;
+  border: 1px solid #7c3aed;
+  border-radius: 14px;
+  text-align: right;
+  line-height: 1.8;
+}
+.planet-info h3 { margin-top: 0; }
+
+/* الترقيات والموسوعة والإنجازات */
+.up-row, .codex-row, .ach-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  text-align: right;
+  padding: 10px;
+  margin: 8px 0;
+  background: #0d0218;
+  border: 1px solid #7c3aed;
+  border-radius: 14px;
+}
+.up-info { flex: 1; }
+.up-desc { color: #a78fc7; font-size: 13px; margin-top: 4px; line-height: 1.6; }
+.pips { color: #fbbf24; letter-spacing: 2px; }
+.codex-row.locked, .ach-row.locked { opacity: 0.55; }
+.codex-row, .ach-row { display: block; }
+.ach-row { font-size: 15px; }
+
+/* التنبيهات */
+#toasts {
+  position: absolute;
+  top: 60px;
+  right: 50%;
+  transform: translateX(50%);
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+  pointer-events: none;
+  width: 92vw;
+  max-width: 480px;
+}
+.toast {
+  background: rgba(18, 4, 31, 0.95);
+  border: 1px solid #a855f7;
+  color: #f5efff;
+  border-radius: 999px;
+  padding: 9px 18px;
+  font-size: 14px;
+  text-align: center;
+  box-shadow: 0 0 16px rgba(168, 85, 247, 0.5);
+}
+.toast-ach { border-color: #fbbf24; color: #fbbf24; }
+
+/* أدوات اللمس */
+#touch {
+  position: absolute;
+  inset: auto 0 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 18px;
+  z-index: 15;
+  pointer-events: none;
+}
+.joy {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: rgba(168, 85, 247, 0.18);
+  border: 2px solid #a855f7;
+  position: relative;
+  pointer-events: auto;
+  touch-action: none;
+}
+.joy-knob {
+  position: absolute;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #a855f7;
+  left: 50%;
+  top: 50%;
+  margin: -26px 0 0 -26px;
+  box-shadow: 0 0 12px #e879f9;
+}
+.touch-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: auto;
+}
+.touch-btn {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  font-size: 15px;
+  font-weight: bold;
+  color: #07010d;
+  background: linear-gradient(135deg, #e879f9, #a855f7);
+  border: none;
+  box-shadow: 0 0 14px rgba(232, 121, 249, 0.6);
+}
+.touch-btn:active { transform: scale(0.93); }
+
+@media (max-width: 480px) {
+  .game-title { font-size: 32px; }
+  .panel { padding: 14px; }
+  .joy { width: 104px; height: 104px; }
+  .touch-btn { width: 72px; height: 72px; font-size: 13px; }
+}

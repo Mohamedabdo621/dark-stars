@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>نجوم الظلام — DARK STARS</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+  <canvas id="game-canvas"></canvas>
+
+  <!-- الشريط العلوي -->
+  <div id="hud" class="hud" style="display:none">
+    <div class="hud-stats">
+      <span id="hud-crystals">💎 0</span>
+      <span id="hud-fuel">⛽ 0/100</span>
+      <div class="fuel-bar"><div id="hud-fuel-bar"></div></div>
+    </div>
+    <div id="hud-nav" class="hud-nav">
+      <button id="btn-upgrades" class="btn small">🛠 ترقيات</button>
+      <button id="btn-codex" class="btn small">📖 الموسوعة</button>
+      <button id="btn-ach" class="btn small">🏆 إنجازات</button>
+      <button id="btn-settings" class="btn small">⚙️ إعدادات</button>
+    </div>
+  </div>
+
+  <div id="toasts"></div>
+
+  <!-- شاشة العنوان -->
+  <section id="screen-title" class="screen">
+    <div class="panel title-panel">
+      <h1 class="game-title">✦ نجوم الظلام ✦</h1>
+      <p class="subtitle">مغامرة فضاء أوفلاين — اكتشف 9 كواكب واجمع القطع الأثرية التسع</p>
+      <button id="btn-start" class="btn primary big">🚀 ابدأ الرحلة</button>
+      <button id="btn-howto" class="btn">❓ كيفية اللعب</button>
+      <button id="btn-codex-title" class="btn">📖 الموسوعة</button>
+      <button id="btn-ach-title" class="btn">🏆 الإنجازات</button>
+      <button id="btn-mute-title" class="btn">🔊 الصوت</button>
+    </div>
+  </section>
+
+  <!-- خريطة النجوم -->
+  <section id="screen-map" class="screen" style="display:none">
+    <div class="panel map-panel">
+      <h2>🗺 خريطة النجوم</h2>
+      <p class="muted">اختر وجهتك — اضغط على كوكب في الخريطة أو من القائمة. الكواكب المجهولة تظهر كـ «؟؟؟» حتى تهبط عليها.</p>
+      <div id="planet-list"></div>
+      <div id="planet-info" class="planet-info"><p>اختر كوكباً لعرض تفاصيله.</p></div>
+      <button id="btn-travel" class="btn primary big">🚀 سافر إلى الكوكب</button>
+    </div>
+  </section>
+
+  <!-- الطيران -->
+  <section id="screen-flight" class="screen screen-overlay" style="display:none">
+    <div class="flight-hud">
+      <div id="flight-info">المسافة للهدف: —</div>
+      <p class="muted small">وجّه بالعصا أو الأسهم، واضغط «دفع» للتحليق. اقترب ببطء من الحلقة الذهبية للهبوط. تجنّب الكويكبات!</p>
+    </div>
+  </section>
+
+  <!-- سطح الكوكب -->
+  <section id="screen-surface" class="screen screen-overlay" style="display:none">
+    <div class="surface-hud">
+      <div id="surface-info">—</div>
+      <p class="muted small">امشِ فوق البلورات لجمعها. ادخل الكهف (؟) لاكتشاف القطعة الأثرية. تجنّب المخلوقات أو اصعقها. اقترب من المخلوق النادر ✦ لتسجيله.</p>
+      <button id="btn-return" class="btn primary">🛸 العودة للسفينة</button>
+    </div>
+  </section>
+
+  <!-- الترقيات -->
+  <section id="screen-upgrades" class="screen" style="display:none">
+    <div class="panel">
+      <h2>🛠 ترقيات السفينة</h2>
+      <p id="up-crystals" class="gold">بلوراتك: 0</p>
+      <div id="upgrade-list"></div>
+      <button id="btn-back-upgrades" class="btn">⬅ رجوع للخريطة</button>
+    </div>
+  </section>
+
+  <!-- الموسوعة -->
+  <section id="screen-codex" class="screen" style="display:none">
+    <div class="panel">
+      <h2>📖 الموسوعة</h2>
+      <div id="codex-list"></div>
+      <button id="btn-back-codex" class="btn">⬅ رجوع</button>
+    </div>
+  </section>
+
+  <!-- الإنجازات -->
+  <section id="screen-achievements" class="screen" style="display:none">
+    <div class="panel">
+      <h2>🏆 الإنجازات</h2>
+      <p id="ach-count" class="gold"></p>
+      <div id="ach-list"></div>
+      <button id="btn-back-ach" class="btn">⬅ رجوع</button>
+    </div>
+  </section>
+
+  <!-- الإعدادات -->
+  <section id="screen-settings" class="screen" style="display:none">
+    <div class="panel">
+      <h2>⚙️ الإعدادات</h2>
+      <p id="set-stats" class="muted"></p>
+      <button id="btn-save-now" class="btn">💾 حفظ الآن</button>
+      <button id="btn-load-save" class="btn">📂 تحميل الحفظ</button>
+      <button id="btn-mute-set" class="btn">🔊 الصوت يعمل — اضغط للكتم</button>
+      <button id="btn-clear-save" class="btn danger">🗑 مسح الحفظ والبدء من جديد</button>
+      <p class="muted small">الحفظ تلقائي بعد كل هبوط واكتشاف وترقية. اللعبة أوفلاين 100% — لا تحتاج إنترنت إطلاقاً.</p>
+      <button id="btn-back-settings" class="btn">⬅ رجوع</button>
+    </div>
+  </section>
+
+  <!-- كيفية اللعب -->
+  <section id="screen-howto" class="screen" style="display:none">
+    <div class="panel">
+      <h2>❓ كيفية اللعب</h2>
+      <div class="howto">
+        <p><strong>الهدف:</strong> اكتشف 9 كواكب، واجمع القطع الأثرية التسع، وافتح النجم المظلم السري.</p>
+        <p><strong>الخريطة:</strong> اختر كوكباً وسافر إليه. المناطق الأبعد تحتاج محركاً أقوى.</p>
+        <p><strong>الطيران:</strong> وجّه بالعصا الافتراضية أو الأسهم، واضغط «دفع» للتحليق. الوقود ينفد مع الدفع — لو خلص قبل الوصول تعود للوطن تلقائياً. اقترب ببطء من الحلقة الذهبية للهبوط.</p>
+        <p><strong>سطح الكوكب:</strong> امشِ بالعصا أو WASD. البلورات تُجمع بالمرور فوقها، والوقود كذلك. ادخل الكهف (؟) لتجد القطعة الأثرية. المخلوقات تطاردك وتسرق بلوراتك — اصعقها بزر الصعق أو مسافة. المخلوق النادر ✦ يعطي مكافأة عند الاقتراب منه.</p>
+        <p><strong>الترقيات:</strong> البلورات عملة الترقيات. المحرك يفتح مناطق أبعد، والماسح يكشف أسرار الكواكب، والدرع يحميك من الكويكبات.</p>
+        <p><strong>التحكم بلوحة المفاتيح:</strong> WASD/الأسهم للحركة والتوجيه، مسافة للصعق، E للجمع القريب، Esc للرجوع.</p>
+      </div>
+      <button id="btn-back-howto" class="btn">⬅ رجوع</button>
+    </div>
+  </section>
+
+  <!-- أدوات اللمس -->
+  <div id="touch" style="display:none">
+    <div id="joy" class="joy"><div class="joy-knob"></div></div>
+    <div class="touch-btns">
+      <button id="btn-thrust" class="touch-btn" style="display:none">🚀 دفع</button>
+      <button id="btn-interact" class="touch-btn" style="display:none">✋ جمع</button>
+      <button id="btn-zap" class="touch-btn" style="display:none">⚡ صعق</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/logic.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/input.js"></script>
+<script src="js/render.js"></script>
+<script src="js/game.js"></script>
+</body>
+</html>
