@@ -31,6 +31,20 @@ jobs:
         working-directory: godot
         run: godot --headless --import
 
+      - name: Use image's export templates and settings
+        run: |
+          mkdir -p ~/.local/share/godot ~/.config/godot ~/.android
+          cp -r /root/.local/share/godot/export_templates ~/.local/share/godot/ 2>/dev/null || true
+          cp -r /root/.config/godot/. ~/.config/godot/ 2>/dev/null || true
+          cp -r /root/.android/. ~/.android/ 2>/dev/null || true
+          if [ ! -f ~/.local/share/godot/export_templates/4.4.stable/android_debug.apk ]; then
+            echo "templates not found in image, downloading..."
+            cd /tmp && curl -sL -o templates.tpz https://github.com/godotengine/godot/releases/download/4.4-stable/Godot_v4.4-stable_export_templates.tpz
+            mkdir -p ~/.local/share/godot/export_templates/4.4.stable
+            unzip -o -q templates.tpz -d ~/.local/share/godot/export_templates/4.4.stable
+          fi
+          ls ~/.local/share/godot/export_templates/4.4.stable/
+
       - name: Export Android APK (debug)
         working-directory: godot
         run: |
